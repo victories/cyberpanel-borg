@@ -4,7 +4,9 @@ set -o errexit # script will exit if a command fails
 
 # This script will recursively create a dir if not exists
 
-source config.sh
+CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null && pwd)"
+
+source "$CURRENT_DIR"/config.sh
 
 DIR=$1
 

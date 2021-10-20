@@ -2,9 +2,11 @@
 set -o errexit  # script will exit if a command fails
 set -o pipefail # catch | (pipe) fails. The exit status of the last command that threw a non-zero exit code is returned
 
-source config.sh
-
 # This script will backup your domain (either website domain or child-domain from within a website)
+
+CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null && pwd)"
+
+source "$CURRENT_DIR"/config.sh
 
 USAGE="-- Usage example \nbackup-domain.sh domain.com \n-- NOTE: you can specify either a website domain or a child domain that belongs to a website"
 DOMAIN=$1
@@ -15,11 +17,6 @@ if [[ -z $DOMAIN ]]; then
     echo -e "$USAGE"
     exit 1
 fi
-
-echo "---------- BACKUP STARTED! -----------"
-
-# Set script start time to calculate duration
-START_TIME=$(date +%s)
 
 # Checking if given domain is a "main domain" aka website
 WEBSITE=$(echo "SELECT domain FROM websiteFunctions_websites WHERE domain = '$DOMAIN'" | mysql cyberpanel -s)
@@ -38,32 +35,18 @@ else
     DIR_FOR_BACKUP="$HOME_DIR/$WEBSITE/public_html"
 fi
 
-# TODO --- remove those if the .exclude file works ;)
-# # Exclude stores dirs that we dont want to backup
-# # We avoid backing up cache and temp files since they can clutter the backup quite easily.
-# EXCLUDED_DIRS=()
+echo "---------- BACKUP STARTED! -----------"
 
-# # D_DIRS wordpress cache dir
-# if [ -d "$DIR_FOR_BACKUP/wp-content/cache" ]; then
-#     EXCLUDED_DIRS+=("$DIR_FOR_BACKUP/wp-content/cache")
-# fi
-
-# # Exclude drupal cache dir
-# if [ -d "$DIR_FOR_BACKUP/cache" ]; then
-#     EXCLUDED_DIRS+=("$DIR_FOR_BACKUP/cache")
-# fi
-
-# # Informing about excluded directories
-# for EXCLUDED_DIR in "${EXCLUDED_DIRS[@]}"; do
-#     echo "-- Directory $EXCLUDED_DIR will be excluded"
-# done
+# Set script start time to calculate duration
+START_TIME=$(date +%s)
 
 # Set borg repo path
 DOMAIN_REPO=$REPO_DOMAINS_DIR/$DOMAIN
 
 # Check if repo was initialized, if it is not we perform a borg init
 if ! [ -d "$DOMAIN_REPO/data" ]; then
-    echo "-- No repo found for $WEBSITE. Initializing new borg repository."
+    echo "-- No repo found for $WEBSITE. This is the first time you take a backup of it."
+    echo "-- Initializing a new borg repository $DB_REPO"
 
     # We should create the backup directory for this repo.
     # But we should first check if we are in ssh or plain filesystem as the commands differ

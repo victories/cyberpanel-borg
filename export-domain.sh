@@ -2,9 +2,11 @@
 set -o errexit  # script will exit if a command fails
 set -o pipefail # catch | (pipe) fails. The exit status of the last command that threw a non-zero exit code is returned
 
-source config.sh
-
 # This script will export a tar file from incremental backups for the specified date and domain.
+
+CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null && pwd)"
+
+source "$CURRENT_DIR"/config.sh
 
 USAGE="-- Usage example \nexport-domain.sh 2021-10-15 domain.com /my/export/location \n-- NOTE: you can specify either a website domain or a child domain that belongs to a website"
 

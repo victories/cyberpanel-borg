@@ -2,9 +2,11 @@
 set -o errexit  # script will exit if a command fails
 set -o pipefail # catch | (pipe) fails. The exit status of the last command that threw a non-zero exit code is returned
 
-source config.sh
-
 # This script will display a list of the excluded files in the given domain directory
+
+CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null && pwd)"
+
+source "$CURRENT_DIR"/config.sh
 
 USAGE="-- Usage example \ntest-file-exclude.sh domain.com \n-- NOTE: you can specify either a website domain or a child domain that belongs to a website"
 DOMAIN=$1
