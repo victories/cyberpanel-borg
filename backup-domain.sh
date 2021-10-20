@@ -67,7 +67,7 @@ DATE=$(date +'%F')
 echo "-- Creating new backup archive $DOMAIN_REPO::$DATE"
 # backup-file-exclude.lst file contains the pattern for the directories that should be excluded
 # As a default we exclude the wordpress and drupal cache files
-borg create "$OPTIONS_CREATE" "$DOMAIN_REPO"::"$DATE" "$DIR_FOR_BACKUP" --exclude-from=backup-file-exclude.lst
+borg create $OPTIONS_CREATE "$DOMAIN_REPO"::"$DATE" "$DIR_FOR_BACKUP" --exclude-from=backup-file-exclude.lst
 
 echo "-- Cleaning old backup archives"
 borg prune $OPTIONS_PRUNE "$DOMAIN_REPO"

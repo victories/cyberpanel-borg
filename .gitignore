@@ -1,2 +1,5 @@
-# This might contain sensitive data...
+# This might contain sensitive data. We have a template for that.
 config.sh
+
+# This is for trying things out
+playground.sh
