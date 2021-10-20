@@ -6,17 +6,17 @@ CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null && pwd)"
 
 source "$CURRENT_DIR"/config.sh
 
-USAGE="-- Usage: backup-database.sh my_db_name"
+USAGE="-- Usage example: \nbackup-database.sh my_db_name"
 DB_NAME=$1
 
 # Checking required arguments
 if [[ -z $DB_NAME ]]; then
     echo "-- ERROR: arguments are missing..."
-    echo "$USAGE"
+    echo -e "$USAGE"
     exit 1
 fi
 
-# Check if database exists in cyberpanel db and get it's website to use this for the backup dir'
+# Check if database exists in cyberpanel db and get it's website to use this for the backup dir
 DB_WEBSITE=$(echo "SELECT w.domain FROM databases_databases d LEFT JOIN websiteFunctions_websites w ON d.website_id = w.id WHERE d.dbName = '$DB_NAME'" | mysql cyberpanel -s)
 if [[ -z $DB_WEBSITE ]]; then
     echo "-- ERROR: Database was not found in cyberpanel. Make sure you typed the db name correctly"

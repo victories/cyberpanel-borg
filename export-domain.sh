@@ -58,6 +58,7 @@ fi
 
 read -p "Are you sure you want to export tar for domain $DOMAIN for date $DATE to location $EXPORT_DIR? " -n 1 -r
 if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    # This is to avoid exiting the script if the script is sourced
     [[ "$0" = "$BASH_SOURCE" ]]
     echo
     echo "---------- EXPORT CANCELED! -----------"

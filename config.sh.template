@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# This config file set the global variables for all backup and restore scripts.
+# This config file sets the global variables for all backup and restore scripts.
 
 ##### What to backup #####
-# NOTE: avoid trailing slashes (/ in the end of the dirs)
+# NOTE: avoid trailing slashes (/ at the end of the dirs)
 HOME_DIR=/home            # Where user directories are placed
 SCRIPTS_DIR=/root/scripts # Where you have some custom scripts that you want to backup (optional)
 ETC_DIR=/etc              # Server level config files

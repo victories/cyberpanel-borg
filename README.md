@@ -11,3 +11,6 @@ This project offers basic features that I was missing from the cyberpanel backup
 # Prerequisites
 1. Install borg. Details here: [Borg Install Docs](https://borgbackup.readthedocs.io/en/stable/installation.html)
 2. Install mailx. Details here: [Install mailx command](https://www.atechtown.com/install-mailx-on-linux/#install-mailx-on-linux)
+
+# Limitations
+The only known limitation is that you cannot restore a db / domain / email if that doesn't exist in cyberpanel. You have to create first the db / domain / email that you want to restore if that doesn't exist in the panel. I have taken into account this cases and the scripts will show a message to warn you.
