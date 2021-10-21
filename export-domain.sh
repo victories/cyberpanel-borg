@@ -1,6 +1,4 @@
 #!/bin/bash
-set -o errexit  # script will exit if a command fails
-set -o pipefail # catch | (pipe) fails. The exit status of the last command that threw a non-zero exit code is returned
 
 # This script will export a tar file from incremental backups for the specified date and domain.
 
@@ -64,6 +62,9 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]; then
     echo "---------- EXPORT CANCELED! -----------"
     exit 1
 fi
+
+echo
+echo "---------- EXPORT STARTED! -----------"
 
 borg export-tar --tar-filter="gzip -9" "$DOMAIN_REPO"::"$DATE" "$EXPORT_DIR/${DOMAIN}_$DATE.tar.gz"
 

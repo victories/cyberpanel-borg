@@ -1,6 +1,4 @@
 #!/bin/bash
-set -o nounset # exit when script tries to use undeclared variables.
-set -o errexit # script will exit if a command fails
 
 # This script will recursively create a dir if not exists
 

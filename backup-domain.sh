@@ -1,6 +1,4 @@
 #!/bin/bash
-set -o errexit  # script will exit if a command fails
-set -o pipefail # catch | (pipe) fails. The exit status of the last command that threw a non-zero exit code is returned
 
 # This script will backup your domain (either website domain or child-domain from within a website)
 

@@ -1,6 +1,4 @@
 #!/bin/bash
-set -o errexit  # script will exit if a command fails
-set -o pipefail # catch | (pipe) fails. The exit status of the last command that threw a non-zero exit code is returned
 
 CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null && pwd)"
 
