@@ -26,7 +26,7 @@ if [[ ! $DATE =~ ^20[0-9]{2}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$ ]]; then
 fi
 
 # Checking if given domain is a "main domain" aka website and getting the website owner (externalApp column in the db)
-read -r WEBSITE < <(echo "SELECT * FROM websiteFunctions_websites WHERE domain = '$DOMAIN'" | mysql cyberpanel -s)
+read -r WEBSITE DOMAIN_OWNER < <(echo "SELECT domain, externalApp FROM websiteFunctions_websites WHERE domain = '$DOMAIN'" | mysql cyberpanel -s)
 if [[ -z $WEBSITE ]]; then
 
     # Domain was not found in main domains. We have to check if it is a child domain.

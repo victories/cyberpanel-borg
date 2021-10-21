@@ -1,3 +1,6 @@
+# CyberPanel Borg Backup
+This is a series of bash scripts that allow for a customized borg backup of the databases, domains and emails that are managed by the [CyberPanel](https://cyberpanel.net/) open-source web hosting panel.
+
 # Motivation - What does this project try to solve
 I liked cyberpanel and I wanted to have more control over the backup / restore procedure.
 This project offers basic features that I was missing from the cyberpanel backup implementation and they are really important for me!
@@ -14,3 +17,6 @@ This project offers basic features that I was missing from the cyberpanel backup
 
 # Limitations
 The only known limitation is that you cannot restore a db / domain / email if that doesn't exist in cyberpanel. You have to create first the db / domain / email that you want to restore if that doesn't exist in the panel. I have taken into account this cases and the scripts will show a message to warn you.
+
+# Acknowledgements
+This project was inspired by the [vestacp-borg-incremental-backups](https://github.com/ramirojoaquin/vestacp-borg-incremental-backups) project and I would like to thank the developer of that scripts for his work.
