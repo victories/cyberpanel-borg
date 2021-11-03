@@ -32,17 +32,24 @@ if [[ -z $DB_WEBSITE ]]; then
 fi
 
 DB_REPO="$REPO_DB_DIR/$DB_WEBSITE/$DB_NAME"
+# This is the path that can contain the ssh:// config in case we have a remote ssh backup location
+DB_REPO_DESTINATION="$DB_REPO"
+
+if [[ -n $SSH_HOST ]]; then
+    # We don't have to add / before DB_REPO because it is already added in the config.sh
+    DB_REPO_DESTINATION="$SSH_DESTINATION$DB_REPO"
+fi
 
 # Checking if backups exist for this db
-if ! [ -d "$DB_REPO/data" ]; then
+if ! "$CURRENT_DIR"/helpers/dir-exists.sh "$DB_REPO/data"; then
     echo "-- No repo found for db $DB_NAME. Please make sure that you have backups for this db"
     exit 4
 fi
 
 # Checking if we have backup for given date for this db
-if ! borg list "$DB_REPO" | grep -q "$DATE"; then
+if ! borg list "$DB_REPO_DESTINATION" | grep -q "$DATE"; then
     echo "-- No backup archive found for date $DATE. The following are available for this db:"
-    borg list "$DB_REPO"
+    borg list "$DB_REPO_DESTINATION"
     exit 5
 fi
 
@@ -69,7 +76,7 @@ echo "-- Creating database $DB_NAME"
 mysql -e "CREATE DATABASE IF NOT EXISTS $DB_NAME"
 
 echo "-- Importing restored file to $DB_NAME database"
-borg extract --stdout "$DB_REPO::$DATE" | mysql "$DB_NAME"
+borg extract --stdout "$DB_REPO_DESTINATION::$DATE" | mysql "$DB_NAME"
 
 echo "---------- RESTORATION COMPLETED! -----------"
 END_TIME=$(date +%s)

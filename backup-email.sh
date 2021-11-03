@@ -48,33 +48,32 @@ START_TIME=$(date +%s)
 
 # Set borg repo path
 EMAIL_REPO=$REPO_EMAILS_DIR/$DOMAIN/$EMAIL
+# This is the path that can contain the ssh:// config in case we have a remote ssh backup location
+EMAIL_REPO_DESTINATION="$EMAIL_REPO"
+
+if [[ -n $SSH_HOST ]]; then
+    # We don't have to add / before EMAIL_REPO because it is already added in the config.sh
+    EMAIL_REPO_DESTINATION="$SSH_DESTINATION$EMAIL_REPO"
+fi
 
 # Check if repo was initialized, if it is not we perform a borg init
-if ! [ -d "$EMAIL_REPO/data" ]; then
+if ! "$CURRENT_DIR"/helpers/dir-exists.sh "$EMAIL_REPO/data"; then
     echo "-- No repo found for $EMAIL. This is the first time you take a backup of it."
     echo "-- Initializing a new borg repository $EMAIL_REPO"
 
     # We should create the backup directory for this repo.
-    # But we should first check if we are in ssh or plain filesystem as the commands differ
-    if [[ -z $SSH_HOST ]]; then
-        # Plain file system
-        mkdir -p "$EMAIL_REPO"
-    else
-        # SSH filesystem. We must perform sftp actions
-        # The following script will create the dir if not exists
-        bash sftp-mkdir.sh "$EMAIL_REPO"
-    fi
+    "$CURRENT_DIR"/helpers/mkdir-if-not-exist.sh "$EMAIL_REPO"
 
-    borg init $OPTIONS_INIT "$EMAIL_REPO"
+    borg init $OPTIONS_INIT "$EMAIL_REPO_DESTINATION"
 fi
 
 DATE=$(date +'%F')
 
 echo "-- Creating new backup archive $EMAIL_REPO::$DATE"
-borg create $OPTIONS_CREATE "$EMAIL_REPO"::"$DATE" "$DIR_FOR_BACKUP"
+borg create $OPTIONS_CREATE "$EMAIL_REPO_DESTINATION"::"$DATE" "$DIR_FOR_BACKUP"
 
 echo "-- Cleaning old backup archives"
-borg prune $OPTIONS_PRUNE "$EMAIL_REPO"
+borg prune $OPTIONS_PRUNE "$EMAIL_REPO_DESTINATION"
 
 echo "---------- BACKUP COMPLETED! -----------"
 END_TIME=$(date +%s)

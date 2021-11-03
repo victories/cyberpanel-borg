@@ -44,17 +44,24 @@ fi
 
 # Set borg repo path
 EMAIL_REPO=$REPO_EMAILS_DIR/$DOMAIN/$EMAIL
+# This is the path that can contain the ssh:// config in case we have a remote ssh backup location
+EMAIL_REPO_DESTINATION="$EMAIL_REPO"
+
+if [[ -n $SSH_HOST ]]; then
+    # We don't have to add / before EMAIL_REPO because it is already added in the config.sh
+    EMAIL_REPO_DESTINATION="$SSH_DESTINATION$EMAIL_REPO"
+fi
 
 # Checking if backups exist for this email
-if ! [ -d "$EMAIL_REPO/data" ]; then
+if ! "$CURRENT_DIR"/helpers/dir-exists.sh "$EMAIL_REPO/data"; then
     echo "-- No repo found for email $EMAIL. Please make sure that you have backups for this email"
     exit 5
 fi
 
 # Checking if we have backup for given date for this email
-if ! borg list "$EMAIL_REPO" | grep -q "$DATE"; then
+if ! borg list "$EMAIL_REPO_DESTINATION" | grep -q "$DATE"; then
     echo "-- No backup archive found for date $DATE. The following are available for this email:"
-    borg list "$EMAIL_REPO"
+    borg list "$EMAIL_REPO_DESTINATION"
     exit 6
 fi
 
@@ -91,7 +98,7 @@ echo "-- Restoring backup"
 cd /
 
 # Note that have to use ${DIR_TO_RESTORE:1} for the reason explained above.
-borg extract --list "$EMAIL_REPO"::"$DATE" "${DIR_TO_RESTORE:1}"
+borg extract --list "$EMAIL_REPO_DESTINATION"::"$DATE" "${DIR_TO_RESTORE:1}"
 
 # Fixing permissions
 echo "-- Fixing directory and file ownership"

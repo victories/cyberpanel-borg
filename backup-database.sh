@@ -27,33 +27,32 @@ echo "---------- BACKUP STARTED! -----------"
 START_TIME=$(date +%s)
 
 DB_REPO="$REPO_DB_DIR/$DB_WEBSITE/$DB_NAME"
+# This is the path that can contain the ssh:// config in case we have a remote ssh backup location
+DB_REPO_DESTINATION="$DB_REPO"
+
+if [[ -n $SSH_HOST ]]; then
+    # We don't have to add / before DB_REPO because it is already added in the config.sh
+    DB_REPO_DESTINATION="$SSH_DESTINATION$DB_REPO"
+fi
 
 # Check if repo was initialized, if it is not, we perform borg init
-if ! [ -d "$DB_REPO/data" ]; then
+if ! "$CURRENT_DIR"/helpers/dir-exists.sh "$DB_REPO/data"; then
     echo "-- No repo found for db $DB_NAME. This is the first time you take a backup of it."
     echo "-- Initializing a new borg repository $DB_REPO"
 
     # We should create the backup directory for this repo.
-    # But we should first check if we are in ssh or plain filesystem as the commands differ
-    if [[ -z $SSH_HOST ]]; then
-        # Plain file system
-        mkdir -p "$DB_REPO"
-    else
-        # SSH filesystem. We must perform sftp actions
-        # The following script will create the dir if not exists
-        bash sftp-mkdir.sh "$DB_REPO"
-    fi
+    "$CURRENT_DIR"/helpers/mkdir-if-not-exist.sh "$DB_REPO"
 
-    borg init $OPTIONS_INIT "$DB_REPO"
+    borg init $OPTIONS_INIT "$DB_REPO_DESTINATION"
 fi
 
 DATE=$(date +'%F')
 
 echo "-- Creating new backup archive $DB_REPO::$DATE"
-mysqldump "$DB_NAME" --opt --routines --skip-comments | borg create $OPTIONS_CREATE "$DB_REPO"::"$DATE" -
+mysqldump "$DB_NAME" --opt --routines --skip-comments | borg create $OPTIONS_CREATE "$DB_REPO_DESTINATION"::"$DATE" -
 
 echo "-- Cleaning old backup archives"
-borg prune $OPTIONS_PRUNE "$DB_REPO"
+borg prune $OPTIONS_PRUNE "$DB_REPO_DESTINATION"
 
 echo "---------- BACKUP COMPLETED! -----------"
 END_TIME=$(date +%s)

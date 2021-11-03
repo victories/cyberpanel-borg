@@ -39,21 +39,28 @@ if [[ -z $WEBSITE ]]; then
     DIR_TO_RESTORE="$CHILD_DOMAIN_PATH"
 else
     # When the domain is not a child domain the files are stored inside the public_html folder
-    DIR_TO_RESTORE="$HOME_DIR/$WEBSITE/public_html"
+    DIR_TO_RESTORE="${HOME_DIR%/}/$WEBSITE/public_html"
 fi
 
 DOMAIN_REPO=$REPO_DOMAINS_DIR/$DOMAIN
+# This is the path that can contain the ssh:// config in case we have a remote ssh backup location
+DOMAIN_REPO_DESTINATION="$DOMAIN_REPO"
+
+if [[ -n $SSH_HOST ]]; then
+    # We don't have to add / before DOMAIN_REPO because it is already added in the config.sh
+    DOMAIN_REPO_DESTINATION="$SSH_DESTINATION$DOMAIN_REPO"
+fi
 
 # Checking if backups exist for this domain
-if ! [ -d "$DOMAIN_REPO/data" ]; then
+if ! "$CURRENT_DIR"/helpers/dir-exists.sh "$DOMAIN_REPO/data"; then
     echo "-- No repo found for domain $DOMAIN. Please make sure that you have backups for this domain"
     exit 4
 fi
 
 # Checking if we have backup for given date for this domain
-if ! borg list "$DOMAIN_REPO" | grep -q "$DATE"; then
+if ! borg list "$DOMAIN_REPO_DESTINATION" | grep -q "$DATE"; then
     echo "-- No backup archive found for date $DATE. The following are available for this domain:"
-    borg list "$DOMAIN_REPO"
+    borg list "$DOMAIN_REPO_DESTINATION"
     exit 5
 fi
 
@@ -90,7 +97,7 @@ echo "-- Restoring backup"
 cd /
 
 # Note that have to use ${DIR_TO_RESTORE:1} for the reason explained above.
-borg extract --list "$DOMAIN_REPO"::"$DATE" "${DIR_TO_RESTORE:1}"
+borg extract --list "$DOMAIN_REPO_DESTINATION"::"$DATE" "${DIR_TO_RESTORE:1}"
 
 # Fixing permissions
 echo "-- Fixing directory and file ownership"

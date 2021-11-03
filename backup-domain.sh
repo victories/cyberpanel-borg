@@ -30,7 +30,7 @@ if [[ -z $WEBSITE ]]; then
     DIR_FOR_BACKUP="$CHILD_DOMAIN_PATH"
 else
     # When the domain is not a child domain the files are stored inside the public_html folder
-    DIR_FOR_BACKUP="$HOME_DIR/$WEBSITE/public_html"
+    DIR_FOR_BACKUP="${HOME_DIR%/}/$WEBSITE/public_html"
 fi
 
 echo "---------- BACKUP STARTED! -----------"
@@ -40,24 +40,24 @@ START_TIME=$(date +%s)
 
 # Set borg repo path
 DOMAIN_REPO=$REPO_DOMAINS_DIR/$DOMAIN
+# This is the path that can contain the ssh:// config in case we have a remote ssh backup location
+DOMAIN_REPO_DESTINATION="$DOMAIN_REPO"
+
+if [[ -n $SSH_HOST ]]; then
+    # We don't have to add / before DOMAIN_REPO because it is already added in the config.sh
+    DOMAIN_REPO_DESTINATION="$SSH_DESTINATION$DOMAIN_REPO"
+fi
 
 # Check if repo was initialized, if it is not we perform a borg init
-if ! [ -d "$DOMAIN_REPO/data" ]; then
+if ! "$CURRENT_DIR"/helpers/dir-exists.sh "$DOMAIN_REPO/data"; then
     echo "-- No repo found for $WEBSITE. This is the first time you take a backup of it."
     echo "-- Initializing a new borg repository $DB_REPO"
 
     # We should create the backup directory for this repo.
-    # But we should first check if we are in ssh or plain filesystem as the commands differ
-    if [[ -z $SSH_HOST ]]; then
-        # Plain file system
-        mkdir -p "$DOMAIN_REPO"
-    else
-        # SSH filesystem. We must perform sftp actions
-        # The following script will create the dir if not exists
-        bash sftp-mkdir.sh "$DOMAIN_REPO"
-    fi
+    "$CURRENT_DIR"/helpers/mkdir-if-not-exist.sh "$DOMAIN_REPO"
 
-    borg init $OPTIONS_INIT "$DOMAIN_REPO"
+    borg init $OPTIONS_INIT "$DOMAIN_REPO_DESTINATION"
+
 fi
 
 DATE=$(date +'%F')
@@ -65,10 +65,10 @@ DATE=$(date +'%F')
 echo "-- Creating new backup archive $DOMAIN_REPO::$DATE"
 # backup-file-exclude.lst file contains the pattern for the directories that should be excluded
 # As a default we exclude the wordpress and drupal cache files
-borg create $OPTIONS_CREATE "$DOMAIN_REPO"::"$DATE" "$DIR_FOR_BACKUP" --exclude-from=backup-file-exclude.lst
+borg create $OPTIONS_CREATE "$DOMAIN_REPO_DESTINATION"::"$DATE" "$DIR_FOR_BACKUP" --exclude-from="$CURRENT_DIR"/backup-file-exclude.lst
 
 echo "-- Cleaning old backup archives"
-borg prune $OPTIONS_PRUNE "$DOMAIN_REPO"
+borg prune $OPTIONS_PRUNE "$DOMAIN_REPO_DESTINATION"
 
 echo "---------- BACKUP COMPLETED! -----------"
 END_TIME=$(date +%s)

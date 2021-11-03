@@ -2,11 +2,12 @@
 
 # This script will recursively create a dir if not exists
 
-CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null && pwd)"
+CURRENT_DIR="$(builtin cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null && pwd)"
+PARENT_DIR="$(dirname "${CURRENT_DIR}")"
 
-source "$CURRENT_DIR"/config.sh
+source "$PARENT_DIR"/config.sh
 
-DIR=$1
+DIR="$1"
 
 if [[ -z $DIR ]]; then
     echo "-- Please set a directory to be created"

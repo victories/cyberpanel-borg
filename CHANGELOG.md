@@ -6,5 +6,5 @@ This is the first release that includes the basic functionality of the backup sc
 - export database / domain / email backup as tar.gz
 - configurable file exclusion for the domain backup
 - file exclusion display per domain to be sure that the config is properly done
-- email notification when you run the backup with cron
+- email notification for failed/successful backup when you run the backup with cron (with warning for low disk space)
 - email functionality testing script

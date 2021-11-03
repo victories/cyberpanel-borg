@@ -30,7 +30,7 @@ if [[ -z $WEBSITE ]]; then
     DIR_FOR_BACKUP="$CHILD_DOMAIN_PATH"
 else
     # When the domain is not a child domain the files are stored inside the public_html folder
-    DIR_FOR_BACKUP="$HOME_DIR/$WEBSITE/public_html"
+    DIR_FOR_BACKUP="${HOME_DIR%/}/$WEBSITE/public_html"
 fi
 
 # Set borg repo path
@@ -42,4 +42,4 @@ DATE=$(date +'%F')
 echo "-- The following files will NOT be backed up for domain $DOMAIN"
 
 # This will just display the excluded files list without actually running the bakcup (dry run)
-borg create --list --dry-run "$DOMAIN_REPO"::"$DATE" "$DIR_FOR_BACKUP" --exclude-from=backup-file-exclude.lst --filter=x # --filter=x will make sure that only the excluded files are displayed
+borg create --list --dry-run "$DOMAIN_REPO"::"$DATE" "$DIR_FOR_BACKUP" --exclude-from="$CURRENT_DIR"/backup-file-exclude.lst --filter=x # --filter=x will make sure that only the excluded files are displayed
