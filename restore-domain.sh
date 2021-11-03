@@ -101,7 +101,11 @@ borg extract --list "$DOMAIN_REPO_DESTINATION"::"$DATE" "${DIR_TO_RESTORE:1}"
 
 # Fixing permissions
 echo "-- Fixing directory and file ownership"
+# The root folder that we restore should be owned by the group "nogroup"
+# But all the children directories and files should be owned by the group with the same name as the user (e.g. examp9878)
+# Otherwise we get a 404 error when trying to access the website and 403 if we try to access any location inside the website
 chown -R "$DOMAIN_OWNER":"$DOMAIN_OWNER" "$DIR_TO_RESTORE"
+chown "$DOMAIN_OWNER":nogroup "$DIR_TO_RESTORE"
 
 echo "---------- RESTORATION COMPLETED! -----------"
 END_TIME=$(date +%s)
