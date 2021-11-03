@@ -7,7 +7,7 @@ PARENT_DIR="$(dirname "${CURRENT_DIR}")"
 
 source "$PARENT_DIR"/config.sh
 
-DIR="${1#/}"
+DIR="${1%/}"
 
 if [ -z "$DIR" ]; then
     echo "-- ERROR: Please give a directory to check"
@@ -20,10 +20,6 @@ if [[ -z $SSH_HOST ]]; then
     [[ -d $DIR ]] && exit 0 || exit 1
 else
     # Remote destination
-    # If dir starts with / we have to remove it
-    if [[ $DIR == /* ]]; then
-        DIR=${DIR:1}
-    fi
-    echo
-    echo "chdir '$DIR'" | sftp $SFTP_PIPE_OPTIONS >/dev/null 2>&1 && exit 0 || exit 1
+    # If dir starts with / we have to remove it, otherwise sftp will fail to find the directory
+    echo "chdir '${DIR#/}'" | sftp $SFTP_PIPE_OPTIONS >/dev/null 2>&1 && exit 0 || exit 1
 fi
